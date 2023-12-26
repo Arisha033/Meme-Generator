@@ -1,15 +1,34 @@
-import React, { useState } from "react";
-import MemesData from "../MemesData.jsx";
+import React, { useEffect, useState } from "react";
 
 export const Meme = () => {
-  // const [memeImage, setmemeImage] = useState("")
-
+    // state to hold default data
   const [meme, setMeme] = useState({
     topText: "",
     bottomText: "",
     randomImage: "http://i.imgflip.com/1bij.jpg",
   });
 
+  // state to hold memes data from API
+  const [allMemes, setAllMemes] = useState([]);
+
+  useEffect(() => {
+    fetch("https://api.imgflip.com/get_memes")
+      .then((response) => response.json())
+      .then((data) => setAllMemes(data.data.memes));
+  }, []);
+
+
+  // get random url for the image
+  function getMemeImage() {
+    const randomNumber = Math.floor(Math.random() * allMemes.length);
+    const imgUrl = allMemes[randomNumber].url;
+    setMeme((prevMeme) => ({
+      ...prevMeme,
+      randomImage: imgUrl,
+    }));
+  }
+
+  // to handle form input
   function handleInputChange(event) {
     const { name, value } = event.target;
     setMeme((prevMemeData) => {
@@ -20,18 +39,6 @@ export const Meme = () => {
     });
   }
 
-  const [allMemeImage, setAllMemeImage] = useState(MemesData);
-
-  function getMemeImage() {
-    const memeArray = allMemeImage.data.memes;
-    const randomNumber = Math.floor(Math.random() * memeArray.length);
-    const imgUrl = memeArray[randomNumber].url;
-    setMeme((prevMeme) => ({
-      ...prevMeme,
-      randomImage: imgUrl,
-    }));
-    // console.log(imgUrl)
-  }
 
   return (
     <>
@@ -58,11 +65,11 @@ export const Meme = () => {
         <button className="btn" onClick={getMemeImage}>
           Get a new meme image🖼️
         </button>
-      <div className="meme">
-        <img src={meme.randomImage} alt="memeImage" className="memeImage" />
-        <h2 className="memeText top">{meme.topText}</h2>
-        <h2 className="memeText bottom">{meme.bottomText}</h2>
-      </div>
+        <div className="meme">
+          <img src={meme.randomImage} alt="memeImage" className="memeImage" />
+          <h2 className="memeText top">{meme.topText}</h2>
+          <h2 className="memeText bottom">{meme.bottomText}</h2>
+        </div>
       </div>
     </>
   );
